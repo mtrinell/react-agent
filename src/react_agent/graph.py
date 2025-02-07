@@ -3,6 +3,9 @@
 Works with a chat model with tool calling support.
 """
 
+import os
+from dotenv import load_dotenv
+
 from datetime import datetime, timezone
 from typing import Dict, List, Literal, cast
 
@@ -14,10 +17,12 @@ from langgraph.prebuilt import ToolNode
 from react_agent.configuration import Configuration
 from react_agent.state import InputState, State
 from react_agent.tools import TOOLS
-from react_agent.utils import load_chat_model
+
+from langchain_openai import AzureChatOpenAI
 
 # Define the function that calls the model
 
+load_dotenv()
 
 async def call_model(
     state: State, config: RunnableConfig
@@ -36,7 +41,12 @@ async def call_model(
     configuration = Configuration.from_runnable_config(config)
 
     # Initialize the model with tool binding. Change the model or add more tools here.
-    model = load_chat_model(configuration.model).bind_tools(TOOLS)
+    # model = load_chat_model(configuration.model).bind_tools(TOOLS)
+
+    model = AzureChatOpenAI(
+        model=os.getenv("AZURE_OPENAI_MODEL", ''),
+        temperature=0.0
+    ).bind_tools(TOOLS)
 
     # Format the system prompt. Customize this to change the agent's behavior.
     system_message = configuration.system_prompt.format(
