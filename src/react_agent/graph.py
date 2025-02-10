@@ -17,6 +17,7 @@ from langgraph.prebuilt import ToolNode
 from react_agent.configuration import Configuration
 from react_agent.state import InputState, State
 from react_agent.tools import TOOLS
+from react_agent.utils import load_chat_model
 
 from langchain_openai import AzureChatOpenAI
 
@@ -41,12 +42,7 @@ async def call_model(
     configuration = Configuration.from_runnable_config(config)
 
     # Initialize the model with tool binding. Change the model or add more tools here.
-    # model = load_chat_model(configuration.model).bind_tools(TOOLS)
-
-    model = AzureChatOpenAI(
-        model=os.getenv("AZURE_OPENAI_MODEL", ''),
-        temperature=0.0
-    ).bind_tools(TOOLS)
+    model = load_chat_model(configuration.model).bind_tools(TOOLS)
 
     # Format the system prompt. Customize this to change the agent's behavior.
     system_message = configuration.system_prompt.format(
